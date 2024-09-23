@@ -1,1 +1,1 @@
-"# GoPhish Automation Tool" 
+GoPhish Automation Tool 
