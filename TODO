@@ -1,0 +1,12 @@
+TODO
+
+1. Create frontend
+ - Flask webserver
+ - HTML + CSS UI
+2. Create backend
+ - Python backend with the scripts running
+3. Create the malware
+ - The malware needs to open a high port on the target computer
+ - It needs to give us shell access / allow us to control the other computer
+ - Allow us to send commands from the web server to the target computer
+ - Take screenshots of target computer and send them back to the web site and display it
