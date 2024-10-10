@@ -1,7 +1,7 @@
 TODO
 
-1. Create frontend
- - Flask webserver
+1. Create frontend (You can make look nicer or add functionality if you want)
+ - Flask webserver (Weird timeout issue - pls fix)
  - HTML + CSS UI
 2. Create backend
  - Python backend with the scripts running
