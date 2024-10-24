@@ -1,7 +1,7 @@
 
 # Post deployment backdoor 
 
-This is a backdoor created mainly with Python. It runs in the background of the target system while also hosting a webserver that you can connect to. You can edit the port then webserver is on in the `client.py` file.
+This is a backdoor created mainly with Python. It runs in the background of the target system while also hosting a webserver that you can connect to. You can edit the port that the webserver is running on in the `client.py` file.
 
 On the webserver you have access to multiple different tools. Here are some of them.
 * Command execution
