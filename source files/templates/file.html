@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>File Upload and Download</h1>
+        
+        <!-- File Upload Section -->
+        <div class="file-upload">
+            <h2>File Upload</h2>
+            <div class="input-group">
+                <label for="uploadDirectory">Enter Directory to Upload File:</label>
+                <input type="text" id="uploadDirectory" placeholder="/path/to/upload/">
+            </div>
+            <div class="input-group">
+                <input type="file" id="uploadFileInput">
+            </div>
+            <button id="uploadFileButton">Upload File</button>
+        </div>
+
+        <!-- File Download Section -->
+        <div class="file-download">
+            <h2>File Download</h2>
+            <div class="input-group">
+                <label for="downloadFilePath">Enter Full File Path to Download:</label>
+                <input type="text" id="downloadFilePath" placeholder="/path/to/file.ext">
+            </div>
+            <button id="downloadFileButton">Download File</button>
+        </div>
+
+        <!-- Back to Main Page -->
+        <div class="back-button">
+            <button id="backButton">Back to Main Page</button>
+        </div>
+    </div>
+
+    <script>
+        // Upload File Event Listener
+        document.getElementById('uploadFileButton').addEventListener('click', function() {
+            const fileInput = document.getElementById('uploadFileInput');
+            const directory = document.getElementById('uploadDirectory').value;
+            const file = fileInput.files[0];
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('directory', directory);
+
+            fetch('/upload_file', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json();
+                } else {
+                    // If there's an error, return the response as text
+                    return response.text().then(text => {
+                        throw new Error(text);
+                    });
+                }
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    alert(`File uploaded successfully: ${data.message}`);
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            })
+            .catch(error => {
+                alert(`Fetch Error: ${error.message}`);
+            });
+        });
+
+        // Download File Event Listener
+        document.getElementById('downloadFileButton').addEventListener('click', function() {
+            const filePath = document.getElementById('downloadFilePath').value;
+
+            fetch('/download_file', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ file_path: filePath })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    return response.json().then(data => {
+                        throw new Error(data.message);
+                    });
+                }
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filePath.split('/').pop();  // Extract the filename from the path
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            })
+            .catch(error => {
+                alert(`Error: ${error.message}`);
+            });
+        });
+
+        // Back Button Event Listener
+        document.getElementById('backButton').addEventListener('click', function() {
+            window.location.href = '/';  // Redirect to the main page
+        });
+    </script>
+</body>
+</html>

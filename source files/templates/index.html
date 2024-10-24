@@ -1,0 +1,143 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Command Interface</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Command Interface</h1>
+        
+        <!-- IP and Command Inputs -->
+        <div class="input-group">
+            <label for="ipAddress">Enter IP Address:</label>
+            <input type="text" id="ipAddress" placeholder="192.168.1.1">
+        </div>
+        <div class="input-group">
+            <label for="commandInput">Enter Command:</label>
+            <input type="text" id="commandInput" placeholder="Your command here">
+        </div>
+        <div class="button-group">
+            <button id="setIpButton">Set IP</button>
+            <button onclick="window.location.href='/file_page'">File Page</button>
+            <button id="sendCommandButton">Send Command</button>
+        </div>
+        
+        <!-- Terminal Output -->
+        <div class="terminal" id="responseDisplay">
+            <p>Response will be displayed here...</p>
+        </div>
+
+        <!-- Image Viewer -->
+        <div class="image-viewer">
+            <h2>Image Viewer</h2>
+            <div class="input-group">
+                <label for="imageFile">Enter Full Image Filepath:</label>
+                <input type="text" id="imageFile" placeholder="Enter image filename (e.g., image.jpg)">
+            </div>
+            <button id="viewImageButton">View Image</button>
+            <div class="image-display">
+                <img id="remoteImage" src="" alt="Image will be displayed here" style="display: none;">
+            </div>
+        </div>
+
+        <!-- Webcam Viewer -->
+        <div class="webcam-viewer">
+            <h2>Webcam Viewer</h2>
+            <button id="startWebcamButton">Start Webcam</button>
+            <div class="video-display">
+                <img id="webcamFeed" style="width: 100%; height: auto;" /> <!-- Changed from video to img tag -->
+            </div>
+        </div>
+
+
+    </div>
+
+    <script>
+        document.getElementById('setIpButton').addEventListener('click', function() {
+            const ip = document.getElementById('ipAddress').value;
+
+            fetch('/set_ip', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ip: ip })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('responseDisplay').innerText += `\nIP set: ${ip}`;
+                } else {
+                    document.getElementById('responseDisplay').innerText = `Error: ${data.message}`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('responseDisplay').innerText = `Fetch Error: ${error}`;
+            });
+        });
+
+        document.getElementById('sendCommandButton').addEventListener('click', function() {
+            const command = document.getElementById('commandInput').value;
+
+            fetch('/send_command', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ command: command })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById('responseDisplay').innerText += `\nCommand sent: ${command}\nResponse: ${data.output}`;
+                } else {
+                    document.getElementById('responseDisplay').innerText = `Error: ${data.message}`;
+                }
+            })
+            .catch(error => {
+                document.getElementById('responseDisplay').innerText = `Fetch Error: ${error}`;
+            });
+        });
+
+        document.getElementById('viewImageButton').addEventListener('click', function() {
+            const filePath = document.getElementById('imageFile').value;  // Get the file path input
+        
+            fetch('/view_image', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ file_path: filePath })
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                } else {
+                    return response.json().then(data => {
+                        throw new Error(data.message);
+                    });
+                }
+            })
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);  // Create a blob URL for the image
+                document.getElementById('remoteImage').src = url;  // Set the image source to the blob URL
+                document.getElementById('remoteImage').style.display = 'block';
+            })
+            .catch(error => {
+                document.getElementById('responseDisplay').innerText = `Error: ${error.message}`;
+                document.getElementById('remoteImage').style.display = 'none';
+            });
+        });
+        
+        // starts and shows the live webcam feed
+        document.getElementById('startWebcamButton').addEventListener('click', function() {
+            const webcamFeed = document.getElementById('webcamFeed');
+            webcamFeed.src = '/video_feed';  // Start webcam feed from the server
+        });
+    </script>
+</body>
+</html>
